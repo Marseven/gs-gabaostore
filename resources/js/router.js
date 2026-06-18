@@ -8,6 +8,7 @@ import Stock from './views/Stock.vue';
 import Historique from './views/Historique.vue';
 import Articles from './views/Articles.vue';
 import Users from './views/Users.vue';
+import Profile from './views/Profile.vue';
 
 const routes = [
     { path: '/login', name: 'login', component: Login, meta: { public: true } },
@@ -15,6 +16,7 @@ const routes = [
     { path: '/saisie', name: 'saisie', component: MouvementForm },
     { path: '/stock', name: 'stock', component: Stock },
     { path: '/historique', name: 'historique', component: Historique },
+    { path: '/profil', name: 'profil', component: Profile },
     { path: '/articles', name: 'articles', component: Articles, meta: { admin: true } },
     { path: '/utilisateurs', name: 'utilisateurs', component: Users, meta: { admin: true } },
 ];

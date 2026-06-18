@@ -61,7 +61,12 @@ async function logout() {
 
                 <!-- Profil + déconnexion -->
                 <div class="flex items-center gap-2 shrink-0">
-                    <div class="hidden sm:flex items-center gap-2 glass rounded-pill pl-3 pr-1.5 py-1.5">
+                    <router-link
+                        :to="{ name: 'profil' }"
+                        class="hidden sm:flex items-center gap-2 glass rounded-pill pl-3 pr-1.5 py-1.5 hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-300 ease-spring"
+                        active-class="ring-2 ring-ink/20"
+                        title="Mon profil"
+                    >
                         <div class="text-right leading-tight">
                             <p class="text-xs font-semibold text-ink">{{ auth.user?.name }}</p>
                             <p class="text-[10px] text-muted capitalize">{{ auth.user?.role }}</p>
@@ -69,7 +74,7 @@ async function logout() {
                         <div class="w-8 h-8 rounded-full bg-lime text-ink grid place-items-center text-xs font-bold shadow-pill">
                             {{ initials }}
                         </div>
-                    </div>
+                    </router-link>
                     <button class="icon-btn" title="Déconnexion" @click="logout">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />

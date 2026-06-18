@@ -95,6 +95,49 @@ paths:
       responses:
         "200": { description: Profil }
 
+  /profile:
+    put:
+      summary: Met à jour son propre profil (nom, email)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name: { type: string }
+                email: { type: string, format: email }
+      responses:
+        "200": { description: Profil mis à jour }
+        "422":
+          description: Validation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+
+  /profile/password:
+    put:
+      summary: Change son propre mot de passe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, password, password_confirmation]
+              properties:
+                current_password: { type: string }
+                password: { type: string, minLength: 8 }
+                password_confirmation: { type: string }
+      responses:
+        "200": { description: Mot de passe mis à jour }
+        "422":
+          description: Mot de passe actuel incorrect ou validation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+
   /articles:
     get:
       summary: Liste paginée des articles
