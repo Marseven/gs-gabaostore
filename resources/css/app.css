@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    }
+    body {
+        background-color: #E7E7E4;
+    }
+}
+
+@layer components {
+    /* ---- Boutons ---- */
+    .btn {
+        @apply inline-flex items-center justify-center gap-1.5 rounded-pill px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 disabled:opacity-40 disabled:cursor-not-allowed;
+    }
+    /* Primaire = noir d'encre (pilule) */
+    .btn-primary {
+        @apply btn bg-ink text-white hover:bg-ink/90 active:scale-[0.98] shadow-pill;
+    }
+    /* Accent = lime vif, texte noir */
+    .btn-accent {
+        @apply btn bg-lime text-ink hover:bg-lime-600 active:scale-[0.98] shadow-pill;
+    }
+    /* Secondaire = surface blanche, fin liseré */
+    .btn-secondary {
+        @apply btn bg-surface text-ink ring-1 ring-inset ring-black/5 hover:bg-black/[0.03] shadow-pill;
+    }
+    .btn-danger {
+        @apply btn bg-surface text-red-600 ring-1 ring-inset ring-red-200 hover:bg-red-50;
+    }
+    /* Bouton icône circulaire */
+    .icon-btn {
+        @apply inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface text-ink ring-1 ring-black/5 hover:bg-black/[0.03] transition shadow-pill;
+    }
+    .icon-btn-dark {
+        @apply inline-flex items-center justify-center w-9 h-9 rounded-full bg-ink text-white hover:bg-ink/90 transition;
+    }
+
+    /* ---- Champs ---- */
+    .label {
+        @apply block text-xs font-medium text-muted mb-1.5;
+    }
+    .input {
+        @apply block w-full rounded-2xl border-0 py-2.5 px-4 text-ink bg-black/[0.03] ring-1 ring-inset ring-black/5 placeholder:text-muted/70 focus:bg-surface focus:ring-2 focus:ring-inset focus:ring-ink/80 text-sm transition;
+    }
+
+    /* ---- Cartes ---- */
+    .card {
+        @apply bg-surface rounded-card shadow-soft;
+    }
+    .card-soft {
+        @apply bg-black/[0.025] rounded-card ring-1 ring-black/5;
+    }
+
+    /* ---- Badges ---- */
+    .badge {
+        @apply inline-flex items-center rounded-pill px-2.5 py-1 text-xs font-medium;
+    }
+    .badge-lime {
+        @apply badge bg-lime text-ink;
+    }
+    .badge-pale {
+        @apply badge bg-lime-pale text-ink/80;
+    }
+    .badge-ink {
+        @apply badge bg-ink text-white;
+    }
+    .badge-soft {
+        @apply badge bg-black/5 text-ink/70;
+    }
+
+    .field-error {
+        @apply mt-1.5 text-xs text-red-600;
+    }
+
+    /* ---- Tables ---- */
+    .th {
+        @apply px-4 py-3 text-left text-[11px] font-semibold text-muted uppercase tracking-wider;
+    }
+    .td {
+        @apply px-4 py-3 text-sm text-ink/90 whitespace-nowrap;
+    }
+
+    /* Onglet de navigation en pilule */
+    .nav-pill {
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-pill text-sm font-medium text-ink/70 transition-all;
+    }
+    .nav-pill-active {
+        @apply bg-ink text-white shadow-pill;
+    }
+}
+
+@layer utilities {
+    /* Révélation à la montée de page (staggerable via style="animation-delay") */
+    @keyframes rise {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-rise {
+        animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .animate-rise { animation: none; }
+    }
+}
