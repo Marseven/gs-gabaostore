@@ -22,7 +22,7 @@ class StockExport implements FromQuery, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            'Référence', 'Désignation', 'Catégorie', 'Unité',
+            'Référence', 'Désignation', 'Catégorie', 'Unité', 'Prix',
             'Stock actuel', 'Seuil alerte', 'En alerte',
         ];
     }
@@ -37,6 +37,7 @@ class StockExport implements FromQuery, WithHeadings, WithMapping
             $article->designation,
             $article->categorie?->nom,
             $article->unite,
+            $article->prix,
             $article->stock_actuel,
             $article->seuil_alerte,
             $article->en_alerte ? 'OUI' : 'non',

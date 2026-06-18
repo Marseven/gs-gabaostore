@@ -26,9 +26,16 @@ class MouvementService
                 'article_id' => $article->id,
                 'type' => $data['type'],
                 'quantite' => $data['quantite'],
+                'prix' => $data['prix'] ?? null,
                 'date_mouvement' => $data['date_mouvement'] ?? now()->toDateString(),
                 'livreur' => $data['livreur'] ?? null,
                 'destination' => $data['destination'] ?? null,
+                'telephone' => $data['telephone'] ?? null,
+                'vendeur' => $data['vendeur'] ?? null,
+                'mode_remise' => $data['mode_remise'] ?? 'livraison',
+                'recu_par' => $data['recu_par'] ?? null,
+                'statut_livraison' => $data['statut_livraison'] ?? null,
+                'commentaire_statut' => $data['commentaire_statut'] ?? null,
                 'source' => $data['source'] ?? null,
                 'note' => $data['note'] ?? null,
                 'user_id' => $userId,
@@ -46,15 +53,20 @@ class MouvementService
         return DB::transaction(function () use ($mouvement, $data) {
             $article = Article::lockForUpdate()->findOrFail($mouvement->article_id);
 
-            $mouvement->update([
+            // Champs simplement écrasés s'ils sont fournis, sinon conservés.
+            $champs = [
+                'livreur', 'destination', 'telephone', 'vendeur', 'mode_remise',
+                'recu_par', 'statut_livraison', 'commentaire_statut', 'source', 'note', 'prix',
+            ];
+            $maj = [
                 'type' => $data['type'] ?? $mouvement->type,
                 'quantite' => $data['quantite'] ?? $mouvement->quantite,
                 'date_mouvement' => $data['date_mouvement'] ?? $mouvement->date_mouvement,
-                'livreur' => array_key_exists('livreur', $data) ? $data['livreur'] : $mouvement->livreur,
-                'destination' => array_key_exists('destination', $data) ? $data['destination'] : $mouvement->destination,
-                'source' => array_key_exists('source', $data) ? $data['source'] : $mouvement->source,
-                'note' => array_key_exists('note', $data) ? $data['note'] : $mouvement->note,
-            ]);
+            ];
+            foreach ($champs as $champ) {
+                $maj[$champ] = array_key_exists($champ, $data) ? $data[$champ] : $mouvement->{$champ};
+            }
+            $mouvement->update($maj);
 
             $this->recalculer($article);
 

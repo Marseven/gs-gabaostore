@@ -56,9 +56,20 @@ class MouvementsExport implements FromQuery, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            'Date', 'Type', 'Référence', 'Désignation', 'Quantité',
-            'Unité', 'Livreur', 'Destination', 'Source', 'Note', 'Auteur',
+            'Date', 'Type', 'Référence', 'Désignation', 'Quantité', 'Unité',
+            'Prix', 'Vendeur', 'Téléphone', 'Mode', 'Livreur / Reçu par',
+            'Destination', 'Statut', 'Commentaire', 'Source', 'Note', 'Auteur',
         ];
+    }
+
+    private function libelleStatut(?string $statut): string
+    {
+        return match ($statut) {
+            'valide' => 'Validé',
+            'rate' => 'Raté',
+            'a_reprogrammer' => 'À reprogrammer',
+            default => '',
+        };
     }
 
     /**
@@ -66,6 +77,8 @@ class MouvementsExport implements FromQuery, WithHeadings, WithMapping
      */
     public function map($mouvement): array
     {
+        $surPlace = $mouvement->mode_remise === 'sur_place';
+
         return [
             $mouvement->date_mouvement?->format('d/m/Y'),
             $mouvement->type === 'entree' ? 'Entrée' : 'Sortie',
@@ -73,8 +86,14 @@ class MouvementsExport implements FromQuery, WithHeadings, WithMapping
             $mouvement->article?->designation,
             $mouvement->quantite,
             $mouvement->article?->unite,
-            $mouvement->livreur,
+            $mouvement->prix,
+            $mouvement->vendeur,
+            $mouvement->telephone,
+            $mouvement->type === 'sortie' ? ($surPlace ? 'Sur place' : 'Livraison') : '',
+            $surPlace ? $mouvement->recu_par : $mouvement->livreur,
             $mouvement->destination,
+            $this->libelleStatut($mouvement->statut_livraison),
+            $mouvement->commentaire_statut,
             $mouvement->source,
             $mouvement->note,
             $mouvement->user?->name,

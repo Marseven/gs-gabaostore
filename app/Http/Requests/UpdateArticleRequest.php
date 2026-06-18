@@ -21,6 +21,7 @@ class UpdateArticleRequest extends FormRequest
             'designation' => ['sometimes', 'required', 'string', 'max:255'],
             'categorie_id' => ['nullable', 'integer', Rule::exists('categories', 'id')],
             'unite' => ['nullable', 'string', 'max:50'],
+            'prix' => ['nullable', 'numeric', 'min:0'],
             'suivi_stock' => ['sometimes', 'boolean'],
             'seuil_alerte' => ['nullable', 'integer', 'min:0'],
             'stock_initial' => ['sometimes', 'integer', 'min:0'],

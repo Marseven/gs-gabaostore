@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import { useMouvementsStore } from '../stores/mouvements';
 import ArticleSearch from '../components/ArticleSearch.vue';
 
@@ -11,10 +11,17 @@ const today = new Date().toISOString().slice(0, 10);
 
 const form = reactive({
     quantite: 1,
+    prix: '',
     date_mouvement: today,
     source: '',
     livreur: '',
     destination: '',
+    telephone: '',
+    vendeur: '',
+    mode_remise: 'livraison',
+    recu_par: '',
+    statut_livraison: 'valide',
+    commentaire_statut: '',
     note: '',
 });
 
@@ -27,14 +34,30 @@ const sortieInsuffisante = computed(
     () => type.value === 'sortie' && stockDispo.value !== null && Number(form.quantite) > stockDispo.value
 );
 
+// Préremplit le prix avec celui de l'article sélectionné (si défini et champ vide).
+watch(article, (a) => {
+    if (a && a.prix != null && !form.prix) {
+        form.prix = a.prix;
+    }
+});
+
 function resetForm() {
     article.value = null;
-    form.quantite = 1;
-    form.date_mouvement = today;
-    form.source = '';
-    form.livreur = '';
-    form.destination = '';
-    form.note = '';
+    Object.assign(form, {
+        quantite: 1,
+        prix: '',
+        date_mouvement: today,
+        source: '',
+        livreur: '',
+        destination: '',
+        telephone: '',
+        vendeur: '',
+        mode_remise: 'livraison',
+        recu_par: '',
+        statut_livraison: 'valide',
+        commentaire_statut: '',
+        note: '',
+    });
     errors.value = {};
 }
 
@@ -57,8 +80,18 @@ async function submit() {
             payload.source = form.source || null;
             await mouvements.createEntree(payload);
         } else {
-            payload.livreur = form.livreur;
-            payload.destination = form.destination || null;
+            payload.prix = form.prix !== '' ? Number(form.prix) : null;
+            payload.telephone = form.telephone || null;
+            payload.vendeur = form.vendeur || null;
+            payload.mode_remise = form.mode_remise;
+            payload.statut_livraison = form.statut_livraison || null;
+            payload.commentaire_statut = form.commentaire_statut || null;
+            if (form.mode_remise === 'livraison') {
+                payload.livreur = form.livreur;
+                payload.destination = form.destination || null;
+            } else {
+                payload.recu_par = form.recu_par;
+            }
             await mouvements.createSortie(payload);
         }
         success.value = `${type.value === 'entree' ? 'Entrée' : 'Sortie'} enregistrée avec succès.`;
@@ -142,14 +175,83 @@ async function submit() {
 
                 <!-- Champs spécifiques SORTIE -->
                 <template v-else>
-                    <div>
-                        <label class="label">Livreur <span class="text-red-500">*</span></label>
-                        <input v-model="form.livreur" type="text" class="input" placeholder="Nom du livreur" required />
-                        <p v-if="errors.livreur" class="field-error">{{ errors.livreur[0] }}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Prix</label>
+                            <input v-model="form.prix" type="number" step="0.01" min="0" class="input" placeholder="Montant" />
+                            <p v-if="errors.prix" class="field-error">{{ errors.prix[0] }}</p>
+                        </div>
+                        <div>
+                            <label class="label">Numéro téléphone</label>
+                            <input v-model="form.telephone" type="tel" class="input" placeholder="Téléphone client" />
+                        </div>
                     </div>
                     <div>
-                        <label class="label">Destination / client</label>
-                        <input v-model="form.destination" type="text" class="input" placeholder="Lieu ou client (texte libre)" />
+                        <label class="label">Vendeur</label>
+                        <input v-model="form.vendeur" type="text" class="input" placeholder="Nom du vendeur / revendeur" />
+                    </div>
+
+                    <!-- Mode de remise -->
+                    <div>
+                        <label class="label">Mode de remise</label>
+                        <div class="flex rounded-pill p-1.5 bg-black/[0.04]">
+                            <button type="button" class="flex-1 py-2 rounded-pill text-sm font-medium transition-all"
+                                :class="form.mode_remise === 'livraison' ? 'bg-ink text-white shadow-pill' : 'text-muted hover:text-ink'"
+                                @click="form.mode_remise = 'livraison'">
+                                Livraison
+                            </button>
+                            <button type="button" class="flex-1 py-2 rounded-pill text-sm font-medium transition-all"
+                                :class="form.mode_remise === 'sur_place' ? 'bg-ink text-white shadow-pill' : 'text-muted hover:text-ink'"
+                                @click="form.mode_remise = 'sur_place'">
+                                Sur place
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Livraison : livreur + destination -->
+                    <template v-if="form.mode_remise === 'livraison'">
+                        <div>
+                            <label class="label">Livreur <span class="text-red-500">*</span></label>
+                            <input v-model="form.livreur" type="text" class="input" placeholder="Nom du livreur" />
+                            <p v-if="errors.livreur" class="field-error">{{ errors.livreur[0] }}</p>
+                        </div>
+                        <div>
+                            <label class="label">Lieu de livraison / client</label>
+                            <input v-model="form.destination" type="text" class="input" placeholder="Lieu ou client (texte libre)" />
+                        </div>
+                    </template>
+
+                    <!-- Sur place : reçu par -->
+                    <div v-else>
+                        <label class="label">Reçu par <span class="text-red-500">*</span></label>
+                        <input v-model="form.recu_par" type="text" class="input" placeholder="Ex : reçu par Abou" />
+                        <p v-if="errors.recu_par" class="field-error">{{ errors.recu_par[0] }}</p>
+                    </div>
+
+                    <!-- Statut de livraison -->
+                    <div>
+                        <label class="label">Statut</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button v-for="s in [{v:'valide',l:'Validé'},{v:'a_reprogrammer',l:'À reprogrammer'},{v:'rate',l:'Raté'}]"
+                                :key="s.v" type="button"
+                                class="badge px-3 py-1.5 ring-1 transition-all"
+                                :class="form.statut_livraison === s.v
+                                    ? (s.v === 'rate' ? 'bg-red-600 text-white ring-red-600' : s.v === 'valide' ? 'bg-lime text-ink ring-lime' : 'bg-ink text-white ring-ink')
+                                    : 'bg-white/50 text-ink/70 ring-white/60 hover:bg-white/80'"
+                                @click="form.statut_livraison = s.v">
+                                {{ s.l }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Commentaire (raison) si raté ou à reprogrammer -->
+                    <div v-if="form.statut_livraison === 'rate' || form.statut_livraison === 'a_reprogrammer'">
+                        <label class="label">
+                            Commentaire / raison
+                            <span v-if="form.statut_livraison === 'rate'" class="text-red-500">*</span>
+                        </label>
+                        <textarea v-model="form.commentaire_statut" rows="2" class="input" placeholder="Raison (échec, report…)"></textarea>
+                        <p v-if="errors.commentaire_statut" class="field-error">{{ errors.commentaire_statut[0] }}</p>
                     </div>
                 </template>
 

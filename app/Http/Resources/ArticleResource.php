@@ -16,6 +16,7 @@ class ArticleResource extends JsonResource
             'categorie_id' => $this->categorie_id,
             'categorie' => new CategoryResource($this->whenLoaded('categorie')),
             'unite' => $this->unite,
+            'prix' => $this->prix,
             'suivi_stock' => $this->suivi_stock,
             'seuil_alerte' => $this->seuil_alerte,
             'stock_initial' => $this->stock_initial,

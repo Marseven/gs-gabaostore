@@ -19,6 +19,7 @@ class StoreArticleRequest extends FormRequest
             'designation' => ['required', 'string', 'max:255'],
             'categorie_id' => ['nullable', 'integer', Rule::exists('categories', 'id')],
             'unite' => ['nullable', 'string', 'max:50'],
+            'prix' => ['nullable', 'numeric', 'min:0'],
             'suivi_stock' => ['required', 'boolean'],
             'seuil_alerte' => ['nullable', 'integer', 'min:0', 'required_if:suivi_stock,true'],
             'stock_initial' => ['nullable', 'integer', 'min:0'],

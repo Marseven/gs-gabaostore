@@ -18,6 +18,7 @@ class Article extends Model
         'designation',
         'categorie_id',
         'unite',
+        'prix',
         'suivi_stock',
         'seuil_alerte',
         'stock_initial',
@@ -33,6 +34,7 @@ class Article extends Model
             'seuil_alerte' => 'integer',
             'stock_initial' => 'integer',
             'stock_actuel' => 'integer',
+            'prix' => 'decimal:2',
         ];
     }
 

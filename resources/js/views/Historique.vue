@@ -24,6 +24,21 @@ function fmtDate(d) {
     return `${j}/${m}/${y}`;
 }
 
+const STATUTS = {
+    valide: { label: 'Validé', class: 'badge-lime' },
+    rate: { label: 'Raté', class: 'bg-red-100 text-red-700' },
+    a_reprogrammer: { label: 'À reprogrammer', class: 'badge-ink' },
+};
+function statut(m) {
+    return m.statut_livraison ? STATUTS[m.statut_livraison] : null;
+}
+// Affiche livreur (livraison), « Reçu: X » (sur place) ou la source (entrée).
+function remiseLabel(m) {
+    if (m.type === 'entree') return m.source || '—';
+    if (m.mode_remise === 'sur_place') return m.recu_par ? `Reçu : ${m.recu_par}` : '—';
+    return m.livreur || '—';
+}
+
 async function load(p = 1) {
     page.value = p;
     const params = { page: p };
@@ -56,17 +71,30 @@ function exportExcel() {
 
 // --- Édition / suppression (admin) ---
 const editing = ref(null);
-const editForm = reactive({ quantite: 0, date_mouvement: '', livreur: '', destination: '', source: '', note: '' });
+const editForm = reactive({
+    quantite: 0, prix: '', date_mouvement: '', livreur: '', destination: '',
+    telephone: '', vendeur: '', mode_remise: 'livraison', recu_par: '',
+    statut_livraison: '', commentaire_statut: '', source: '', note: '',
+});
 const editErrors = ref({});
 
 function openEdit(m) {
     editing.value = m;
-    editForm.quantite = m.quantite;
-    editForm.date_mouvement = m.date_mouvement;
-    editForm.livreur = m.livreur || '';
-    editForm.destination = m.destination || '';
-    editForm.source = m.source || '';
-    editForm.note = m.note || '';
+    Object.assign(editForm, {
+        quantite: m.quantite,
+        prix: m.prix ?? '',
+        date_mouvement: m.date_mouvement,
+        livreur: m.livreur || '',
+        destination: m.destination || '',
+        telephone: m.telephone || '',
+        vendeur: m.vendeur || '',
+        mode_remise: m.mode_remise || 'livraison',
+        recu_par: m.recu_par || '',
+        statut_livraison: m.statut_livraison || '',
+        commentaire_statut: m.commentaire_statut || '',
+        source: m.source || '',
+        note: m.note || '',
+    });
     editErrors.value = {};
 }
 
@@ -75,9 +103,16 @@ async function saveEdit() {
     try {
         await mouvements.update(editing.value.id, {
             quantite: Number(editForm.quantite),
+            prix: editForm.prix !== '' ? Number(editForm.prix) : null,
             date_mouvement: editForm.date_mouvement,
             livreur: editForm.livreur || null,
             destination: editForm.destination || null,
+            telephone: editForm.telephone || null,
+            vendeur: editForm.vendeur || null,
+            mode_remise: editForm.mode_remise,
+            recu_par: editForm.recu_par || null,
+            statut_livraison: editForm.statut_livraison || null,
+            commentaire_statut: editForm.commentaire_statut || null,
             source: editForm.source || null,
             note: editForm.note || null,
         });
@@ -142,15 +177,18 @@ onMounted(() => load(1));
         </div>
 
         <div class="card overflow-x-auto">
-            <table class="w-full min-w-[760px]">
+            <table class="w-full min-w-[1100px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Date</th>
                         <th class="th">Type</th>
                         <th class="th">Article</th>
                         <th class="th">Qté</th>
-                        <th class="th">Livreur / Source</th>
+                        <th class="th">Prix</th>
+                        <th class="th">Vendeur</th>
+                        <th class="th">Livreur / Reçu / Source</th>
                         <th class="th">Destination</th>
+                        <th class="th">Statut</th>
                         <th class="th">Auteur</th>
                         <th v-if="auth.isAdmin" class="th">Actions</th>
                     </tr>
@@ -165,8 +203,17 @@ onMounted(() => load(1));
                         </td>
                         <td class="td">{{ m.article?.reference }} — {{ m.article?.designation }}</td>
                         <td class="td font-semibold">{{ m.quantite }}</td>
-                        <td class="td">{{ m.type === 'entree' ? (m.source || '—') : (m.livreur || '—') }}</td>
+                        <td class="td">{{ m.prix != null ? m.prix : '—' }}</td>
+                        <td class="td text-muted">{{ m.vendeur || '—' }}</td>
+                        <td class="td">
+                            {{ remiseLabel(m) }}
+                            <span v-if="m.telephone" class="block text-[11px] text-muted">{{ m.telephone }}</span>
+                        </td>
                         <td class="td text-muted">{{ m.destination || '—' }}</td>
+                        <td class="td">
+                            <span v-if="statut(m)" class="badge" :class="statut(m).class" :title="m.commentaire_statut || ''">{{ statut(m).label }}</span>
+                            <span v-else class="text-muted">—</span>
+                        </td>
                         <td class="td text-muted">{{ m.user?.name }}</td>
                         <td v-if="auth.isAdmin" class="td">
                             <div class="flex gap-1">
@@ -176,7 +223,7 @@ onMounted(() => load(1));
                         </td>
                     </tr>
                     <tr v-if="!mouvements.items.length && !mouvements.loading">
-                        <td class="td text-muted text-center py-8" :colspan="auth.isAdmin ? 8 : 7">Aucun mouvement trouvé.</td>
+                        <td class="td text-muted text-center py-8" :colspan="auth.isAdmin ? 11 : 10">Aucun mouvement trouvé.</td>
                     </tr>
                 </tbody>
             </table>
@@ -197,15 +244,57 @@ onMounted(() => load(1));
                         <input v-model="editForm.date_mouvement" type="date" class="input" />
                     </div>
                 </div>
-                <div v-if="editing.type === 'sortie'">
-                    <label class="label">Livreur</label>
-                    <input v-model="editForm.livreur" type="text" class="input" />
-                    <p v-if="editErrors.livreur" class="field-error">{{ editErrors.livreur[0] }}</p>
-                </div>
-                <div v-if="editing.type === 'sortie'">
-                    <label class="label">Destination</label>
-                    <input v-model="editForm.destination" type="text" class="input" />
-                </div>
+                <template v-if="editing.type === 'sortie'">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="label">Prix</label>
+                            <input v-model="editForm.prix" type="number" step="0.01" min="0" class="input" />
+                        </div>
+                        <div>
+                            <label class="label">Téléphone</label>
+                            <input v-model="editForm.telephone" type="tel" class="input" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label">Vendeur</label>
+                        <input v-model="editForm.vendeur" type="text" class="input" />
+                    </div>
+                    <div>
+                        <label class="label">Mode de remise</label>
+                        <select v-model="editForm.mode_remise" class="input">
+                            <option value="livraison">Livraison</option>
+                            <option value="sur_place">Sur place</option>
+                        </select>
+                    </div>
+                    <div v-if="editForm.mode_remise === 'livraison'">
+                        <label class="label">Livreur</label>
+                        <input v-model="editForm.livreur" type="text" class="input" />
+                        <p v-if="editErrors.livreur" class="field-error">{{ editErrors.livreur[0] }}</p>
+                    </div>
+                    <div v-else>
+                        <label class="label">Reçu par</label>
+                        <input v-model="editForm.recu_par" type="text" class="input" />
+                        <p v-if="editErrors.recu_par" class="field-error">{{ editErrors.recu_par[0] }}</p>
+                    </div>
+                    <div>
+                        <label class="label">Destination / lieu</label>
+                        <input v-model="editForm.destination" type="text" class="input" />
+                    </div>
+                    <div>
+                        <label class="label">Statut</label>
+                        <select v-model="editForm.statut_livraison" class="input">
+                            <option value="">—</option>
+                            <option value="valide">Validé</option>
+                            <option value="a_reprogrammer">À reprogrammer</option>
+                            <option value="rate">Raté</option>
+                        </select>
+                    </div>
+                    <div v-if="editForm.statut_livraison === 'rate' || editForm.statut_livraison === 'a_reprogrammer'">
+                        <label class="label">Commentaire</label>
+                        <textarea v-model="editForm.commentaire_statut" rows="2" class="input"></textarea>
+                        <p v-if="editErrors.commentaire_statut" class="field-error">{{ editErrors.commentaire_statut[0] }}</p>
+                    </div>
+                </template>
                 <div v-if="editing.type === 'entree'">
                     <label class="label">Source</label>
                     <input v-model="editForm.source" type="text" class="input" />

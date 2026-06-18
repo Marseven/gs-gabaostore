@@ -15,9 +15,16 @@ class Mouvement extends Model
         'article_id',
         'type',
         'quantite',
+        'prix',
         'date_mouvement',
         'livreur',
         'destination',
+        'telephone',
+        'vendeur',
+        'mode_remise',
+        'recu_par',
+        'statut_livraison',
+        'commentaire_statut',
         'source',
         'note',
         'user_id',
@@ -28,6 +35,7 @@ class Mouvement extends Model
         return [
             'date_mouvement' => 'date',
             'quantite' => 'integer',
+            'prix' => 'decimal:2',
         ];
     }
 

@@ -74,7 +74,9 @@ function select(article) {
                 class="w-full text-left px-3 py-2 text-sm rounded-xl hover:bg-lime-pale flex justify-between gap-2 transition"
                 @click="select(a)"
             >
-                <span><span class="font-semibold">{{ a.reference }}</span> — {{ a.designation }}</span>
+                <span><span class="font-semibold">{{ a.reference }}</span> — {{ a.designation }}
+                    <span v-if="a.prix != null" class="text-muted">· {{ a.prix }}</span>
+                </span>
                 <span v-if="a.suivi_stock" class="text-muted shrink-0">stock : {{ a.stock_actuel }}</span>
                 <span v-else class="text-muted/70 shrink-0">non suivi</span>
             </button>

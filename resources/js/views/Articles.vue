@@ -19,6 +19,7 @@ const form = reactive({
     designation: '',
     categorie_id: '',
     unite: 'pièce',
+    prix: '',
     suivi_stock: true,
     seuil_alerte: 0,
     stock_initial: 0,
@@ -41,7 +42,7 @@ async function load(p = 1) {
 function openCreate() {
     editingId.value = null;
     Object.assign(form, {
-        reference: '', designation: '', categorie_id: '', unite: 'pièce',
+        reference: '', designation: '', categorie_id: '', unite: 'pièce', prix: '',
         suivi_stock: true, seuil_alerte: 0, stock_initial: 0, actif: true,
     });
     errors.value = {};
@@ -55,6 +56,7 @@ function openEdit(a) {
         designation: a.designation,
         categorie_id: a.categorie_id || '',
         unite: a.unite,
+        prix: a.prix ?? '',
         suivi_stock: a.suivi_stock,
         seuil_alerte: a.seuil_alerte ?? 0,
         stock_initial: a.stock_initial,
@@ -71,6 +73,7 @@ async function save() {
         designation: form.designation,
         categorie_id: form.categorie_id || null,
         unite: form.unite || 'pièce',
+        prix: form.prix !== '' ? Number(form.prix) : null,
         suivi_stock: form.suivi_stock,
         seuil_alerte: form.suivi_stock ? Number(form.seuil_alerte) : null,
         stock_initial: Number(form.stock_initial),
@@ -156,12 +159,13 @@ onMounted(() => {
         </div>
 
         <div class="card overflow-x-auto">
-            <table class="w-full min-w-[760px]">
+            <table class="w-full min-w-[860px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Référence</th>
                         <th class="th">Désignation</th>
                         <th class="th">Catégorie</th>
+                        <th class="th">Prix</th>
                         <th class="th">Suivi</th>
                         <th class="th">Stock</th>
                         <th class="th">Seuil</th>
@@ -174,6 +178,7 @@ onMounted(() => {
                         <td class="td font-semibold">{{ a.reference }}</td>
                         <td class="td">{{ a.designation }}</td>
                         <td class="td text-muted">{{ a.categorie?.nom || '—' }}</td>
+                        <td class="td">{{ a.prix != null ? a.prix : '—' }}</td>
                         <td class="td">{{ a.suivi_stock ? 'Oui' : 'Non' }}</td>
                         <td class="td">{{ a.suivi_stock ? `${a.stock_actuel} ${a.unite}` : '—' }}</td>
                         <td class="td text-muted">{{ a.seuil_alerte ?? '—' }}</td>
@@ -192,7 +197,7 @@ onMounted(() => {
                         </td>
                     </tr>
                     <tr v-if="!articles.items.length && !articles.loading">
-                        <td class="td text-muted text-center py-8" colspan="8">Aucun article.</td>
+                        <td class="td text-muted text-center py-8" colspan="9">Aucun article.</td>
                     </tr>
                 </tbody>
             </table>
@@ -218,6 +223,11 @@ onMounted(() => {
                     <label class="label">Désignation</label>
                     <input v-model="form.designation" type="text" class="input" required />
                     <p v-if="errors.designation" class="field-error">{{ errors.designation[0] }}</p>
+                </div>
+                <div>
+                    <label class="label">Prix unitaire</label>
+                    <input v-model="form.prix" type="number" step="0.01" min="0" class="input" placeholder="Prix de l'article" />
+                    <p v-if="errors.prix" class="field-error">{{ errors.prix[0] }}</p>
                 </div>
                 <div>
                     <label class="label">Catégorie</label>
