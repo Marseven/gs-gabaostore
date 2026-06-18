@@ -17,6 +17,7 @@ class UpdateMouvementRequest extends FormRequest
             'type' => ['sometimes', 'in:entree,sortie'],
             'quantite' => ['sometimes', 'integer', 'min:1'],
             'prix' => ['nullable', 'numeric', 'min:0'],
+            'numero' => ['nullable', 'string', 'max:100'],
             'date_mouvement' => ['sometimes', 'date'],
             'livreur' => ['nullable', 'string', 'max:255'],
             'destination' => ['nullable', 'string', 'max:255'],

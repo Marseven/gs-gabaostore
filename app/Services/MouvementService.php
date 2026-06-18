@@ -27,6 +27,7 @@ class MouvementService
                 'type' => $data['type'],
                 'quantite' => $data['quantite'],
                 'prix' => $data['prix'] ?? null,
+                'numero' => $data['numero'] ?? null,
                 'date_mouvement' => $data['date_mouvement'] ?? now()->toDateString(),
                 'livreur' => $data['livreur'] ?? null,
                 'destination' => $data['destination'] ?? null,
@@ -56,7 +57,7 @@ class MouvementService
             // Champs simplement écrasés s'ils sont fournis, sinon conservés.
             $champs = [
                 'livreur', 'destination', 'telephone', 'vendeur', 'mode_remise',
-                'recu_par', 'statut_livraison', 'commentaire_statut', 'source', 'note', 'prix',
+                'recu_par', 'statut_livraison', 'commentaire_statut', 'source', 'note', 'prix', 'numero',
             ];
             $maj = [
                 'type' => $data['type'] ?? $mouvement->type,

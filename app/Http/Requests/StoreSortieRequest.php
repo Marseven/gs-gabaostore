@@ -26,6 +26,7 @@ class StoreSortieRequest extends FormRequest
             'article_id' => ['required', 'integer', Rule::exists('articles', 'id')->where('actif', true)],
             'quantite' => ['required', 'integer', 'min:1'],
             'prix' => ['nullable', 'numeric', 'min:0'],
+            'numero' => ['nullable', 'string', 'max:100'],
             'date_mouvement' => ['nullable', 'date'],
             'telephone' => ['nullable', 'string', 'max:50'],
             'vendeur' => ['nullable', 'string', 'max:255'],

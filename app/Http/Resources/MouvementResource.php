@@ -16,6 +16,7 @@ class MouvementResource extends JsonResource
             'type' => $this->type,
             'quantite' => $this->quantite,
             'prix' => $this->prix,
+            'numero' => $this->numero,
             'date_mouvement' => $this->date_mouvement?->format('Y-m-d'),
             'livreur' => $this->livreur,
             'destination' => $this->destination,

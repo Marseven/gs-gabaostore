@@ -56,7 +56,7 @@ class MouvementsExport implements FromQuery, WithHeadings, WithMapping
     public function headings(): array
     {
         return [
-            'Date', 'Type', 'Référence', 'Désignation', 'Quantité', 'Unité',
+            'Date', 'Type', 'Numéro', 'Référence', 'Désignation', 'Quantité', 'Unité',
             'Prix', 'Vendeur', 'Téléphone', 'Mode', 'Livreur / Reçu par',
             'Destination', 'Statut', 'Commentaire', 'Source', 'Note', 'Auteur',
         ];
@@ -65,9 +65,9 @@ class MouvementsExport implements FromQuery, WithHeadings, WithMapping
     private function libelleStatut(?string $statut): string
     {
         return match ($statut) {
-            'valide' => 'Validé',
+            'valide' => 'Livré',
             'rate' => 'Raté',
-            'a_reprogrammer' => 'À reprogrammer',
+            'a_reprogrammer' => 'Plus tard',
             default => '',
         };
     }
@@ -82,6 +82,7 @@ class MouvementsExport implements FromQuery, WithHeadings, WithMapping
         return [
             $mouvement->date_mouvement?->format('d/m/Y'),
             $mouvement->type === 'entree' ? 'Entrée' : 'Sortie',
+            $mouvement->numero,
             $mouvement->article?->reference,
             $mouvement->article?->designation,
             $mouvement->quantite,

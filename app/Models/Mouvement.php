@@ -16,6 +16,7 @@ class Mouvement extends Model
         'type',
         'quantite',
         'prix',
+        'numero',
         'date_mouvement',
         'livreur',
         'destination',

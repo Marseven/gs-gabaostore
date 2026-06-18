@@ -25,9 +25,9 @@ function fmtDate(d) {
 }
 
 const STATUTS = {
-    valide: { label: 'Validé', class: 'badge-lime' },
+    valide: { label: 'Livré', class: 'badge-lime' },
     rate: { label: 'Raté', class: 'bg-red-100 text-red-700' },
-    a_reprogrammer: { label: 'À reprogrammer', class: 'badge-ink' },
+    a_reprogrammer: { label: 'Plus tard', class: 'badge-ink' },
 };
 function statut(m) {
     return m.statut_livraison ? STATUTS[m.statut_livraison] : null;
@@ -72,7 +72,7 @@ function exportExcel() {
 // --- Édition / suppression (admin) ---
 const editing = ref(null);
 const editForm = reactive({
-    quantite: 0, prix: '', date_mouvement: '', livreur: '', destination: '',
+    quantite: 0, prix: '', numero: '', date_mouvement: '', livreur: '', destination: '',
     telephone: '', vendeur: '', mode_remise: 'livraison', recu_par: '',
     statut_livraison: '', commentaire_statut: '', source: '', note: '',
 });
@@ -83,6 +83,7 @@ function openEdit(m) {
     Object.assign(editForm, {
         quantite: m.quantite,
         prix: m.prix ?? '',
+        numero: m.numero || '',
         date_mouvement: m.date_mouvement,
         livreur: m.livreur || '',
         destination: m.destination || '',
@@ -104,6 +105,7 @@ async function saveEdit() {
         await mouvements.update(editing.value.id, {
             quantite: Number(editForm.quantite),
             prix: editForm.prix !== '' ? Number(editForm.prix) : null,
+            numero: editForm.numero || null,
             date_mouvement: editForm.date_mouvement,
             livreur: editForm.livreur || null,
             destination: editForm.destination || null,
@@ -177,11 +179,12 @@ onMounted(() => load(1));
         </div>
 
         <div class="card overflow-x-auto">
-            <table class="w-full min-w-[1100px]">
+            <table class="w-full min-w-[1200px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Date</th>
                         <th class="th">Type</th>
+                        <th class="th">Numéro</th>
                         <th class="th">Article</th>
                         <th class="th">Qté</th>
                         <th class="th">Prix</th>
@@ -201,6 +204,7 @@ onMounted(() => load(1));
                                 {{ m.type === 'entree' ? 'Entrée' : 'Sortie' }}
                             </span>
                         </td>
+                        <td class="td text-muted">{{ m.numero || '—' }}</td>
                         <td class="td">{{ m.article?.reference }} — {{ m.article?.designation }}</td>
                         <td class="td font-semibold">{{ m.quantite }}</td>
                         <td class="td">{{ m.prix != null ? m.prix : '—' }}</td>
@@ -223,7 +227,7 @@ onMounted(() => load(1));
                         </td>
                     </tr>
                     <tr v-if="!mouvements.items.length && !mouvements.loading">
-                        <td class="td text-muted text-center py-8" :colspan="auth.isAdmin ? 11 : 10">Aucun mouvement trouvé.</td>
+                        <td class="td text-muted text-center py-8" :colspan="auth.isAdmin ? 12 : 11">Aucun mouvement trouvé.</td>
                     </tr>
                 </tbody>
             </table>
@@ -247,13 +251,17 @@ onMounted(() => load(1));
                 <template v-if="editing.type === 'sortie'">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
+                            <label class="label">Numéro</label>
+                            <input v-model="editForm.numero" type="text" class="input" />
+                        </div>
+                        <div>
                             <label class="label">Prix</label>
                             <input v-model="editForm.prix" type="number" step="0.01" min="0" class="input" />
                         </div>
-                        <div>
-                            <label class="label">Téléphone</label>
-                            <input v-model="editForm.telephone" type="tel" class="input" />
-                        </div>
+                    </div>
+                    <div>
+                        <label class="label">Téléphone</label>
+                        <input v-model="editForm.telephone" type="tel" class="input" />
                     </div>
                     <div>
                         <label class="label">Vendeur</label>
@@ -284,9 +292,9 @@ onMounted(() => load(1));
                         <label class="label">Statut</label>
                         <select v-model="editForm.statut_livraison" class="input">
                             <option value="">—</option>
-                            <option value="valide">Validé</option>
-                            <option value="a_reprogrammer">À reprogrammer</option>
+                            <option value="valide">Livré</option>
                             <option value="rate">Raté</option>
+                            <option value="a_reprogrammer">Plus tard</option>
                         </select>
                     </div>
                     <div v-if="editForm.statut_livraison === 'rate' || editForm.statut_livraison === 'a_reprogrammer'">
