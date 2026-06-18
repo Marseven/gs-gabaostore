@@ -42,11 +42,15 @@ Dans **hPanel → Sites web → (votre domaine) → Document Root**, réglez :
 .../laravel-app/public
 ```
 
-Si votre plan ne permet pas de changer le document root du domaine principal, deux options :
-- Utiliser un **sous-domaine** (ex. `stock.votre-domaine.tld`) dont on choisit la racine = `laravel-app/public`.
-- Ou la méthode « public_html » : copier le contenu de `public/` dans `public_html/`, mettre le reste du projet à côté, et éditer `public_html/index.php` pour pointer les `require` vers `../laravel-app/...`.
+Si votre plan ne permet pas de changer le document root :
+- **Le plus simple** : placez tout le projet dans `public_html/`. Le fichier [`.htaccess`](../.htaccess) **à la racine** (fourni dans le dépôt) réécrit automatiquement toutes les requêtes vers `public/` — rien d'autre à faire.
+- Ou utilisez un **sous-domaine** (ex. `stock.votre-domaine.tld`) dont on règle la racine sur `laravel-app/public`.
 
-Le fichier [public/.htaccess](../public/.htaccess) fourni par Laravel gère déjà la réécriture vers `index.php` (Apache Hostinger).
+Deux fichiers `.htaccess` interviennent :
+- [`.htaccess`](../.htaccess) **racine** : aiguille vers `public/` (utile si le root reste sur la racine du projet) + bloque l'accès aux fichiers sensibles (`.env`, `composer.json`, `.git`…).
+- [`public/.htaccess`](../public/.htaccess) **Laravel** : gère le contrôleur frontal (réécriture vers `index.php`).
+
+> Si vous réglez le document root sur `.../public`, le `.htaccess` racine est au-dessus du root et reste sans effet (inoffensif).
 
 ## 4. Configuration `.env` de production
 Copiez `.env.example` en `.env` et renseignez :

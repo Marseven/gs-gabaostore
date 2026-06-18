@@ -1,0 +1,31 @@
+# =============================================================================
+# .htaccess racine — déploiement Apache (Hostinger mutualisé)
+#
+# Utile UNIQUEMENT lorsque le document root ne peut pas être réglé sur /public
+# (le domaine ou public_html pointe sur la racine du projet). Il réécrit alors
+# toutes les requêtes vers le dossier public/ où réside le contrôleur frontal.
+#
+# Si vous AVEZ pu régler le document root sur .../public, ce fichier est situé
+# au-dessus du root : il n'est jamais lu et reste donc sans effet (inoffensif).
+# =============================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Évite une boucle si la requête cible déjà public/
+    RewriteCond %{REQUEST_URI} !^/?public/
+    # Aiguille toute la requête vers public/ (le .htaccess de public/ prend le relais)
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Empêche le listing des répertoires
+Options -Indexes
+
+# Sécurité : interdit l'accès direct aux fichiers sensibles de la racine
+<FilesMatch "(?i)(^\.env|^\.env\..+|composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|README\.md|CLAUDE\.md|vite\.config\.js)$">
+    Require all denied
+</FilesMatch>
+
+# Bloque l'accès aux dossiers de configuration/versionnement éventuellement présents
+RedirectMatch 404 /\.git
+RedirectMatch 404 /\.github
