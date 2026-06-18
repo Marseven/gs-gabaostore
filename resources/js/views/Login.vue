@@ -24,14 +24,14 @@ async function submit() {
 </script>
 
 <template>
-    <div class="min-h-screen flex items-center justify-center bg-canvas px-4 relative overflow-hidden">
-        <!-- Halo décoratif lime -->
-        <div class="pointer-events-none absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-lime/30 blur-3xl"></div>
-        <div class="pointer-events-none absolute -bottom-40 -left-24 w-[24rem] h-[24rem] rounded-full bg-lime-pale/50 blur-3xl"></div>
+    <div class="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        <!-- Halos lime flottants (complètent l'aurora globale) -->
+        <div class="pointer-events-none absolute -top-32 -right-32 w-[28rem] h-[28rem] rounded-full bg-lime/40 blur-3xl animate-aurora-1"></div>
+        <div class="pointer-events-none absolute -bottom-40 -left-24 w-[24rem] h-[24rem] rounded-full bg-lime-pale/60 blur-3xl animate-aurora-2"></div>
 
         <div class="relative w-full max-w-sm animate-rise">
             <div class="flex flex-col items-center mb-7">
-                <div class="w-14 h-14 rounded-2xl bg-ink text-white grid place-items-center mb-4 shadow-soft-lg">
+                <div class="w-14 h-14 rounded-2xl bg-ink text-white grid place-items-center mb-4 shadow-glass-lg animate-float">
                     <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
                         <path d="M5 9h14M5 15h14M9 5l-1.5 14M16.5 5L15 19" />
                     </svg>
@@ -40,7 +40,7 @@ async function submit() {
                 <p class="text-sm text-muted mt-1">Connexion à l'espace interne</p>
             </div>
 
-            <div class="card shadow-soft-lg p-7">
+            <div class="glass-strong rounded-card p-7">
                 <form @submit.prevent="submit" class="space-y-4">
                     <div>
                         <label class="label">Email</label>

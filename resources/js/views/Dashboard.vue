@@ -7,6 +7,9 @@ const stats = ref({ articles_suivis: 0, en_alerte: 0, mouvements_du_jour: 0 });
 const alertes = ref([]);
 const derniers = ref([]);
 
+// Compteurs affichés, animés en douceur vers la valeur réelle.
+const display = ref({ articles_suivis: 0, en_alerte: 0, mouvements_du_jour: 0 });
+
 function fmtDate(d) {
     if (!d) return '';
     const [y, m, j] = d.split('-');
@@ -17,6 +20,20 @@ const today = computed(() =>
     new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
 );
 
+// Tween fluide (ease-out) d'une valeur numérique sur ~700ms.
+function countUp(key, to) {
+    const from = display.value[key];
+    const start = performance.now();
+    const dur = 700;
+    function step(now) {
+        const t = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        display.value[key] = Math.round(from + (to - from) * eased);
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
 async function load() {
     loading.value = true;
     try {
@@ -24,6 +41,9 @@ async function load() {
         stats.value = data.stats;
         alertes.value = data.alertes.data ?? data.alertes;
         derniers.value = data.derniers_mouvements.data ?? data.derniers_mouvements;
+        countUp('articles_suivis', data.stats.articles_suivis);
+        countUp('en_alerte', data.stats.en_alerte);
+        countUp('mouvements_du_jour', data.stats.mouvements_du_jour);
     } finally {
         loading.value = false;
     }
@@ -57,37 +77,39 @@ onMounted(load);
 
         <!-- Cartes statistiques -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-            <div class="card p-6 animate-rise" style="animation-delay: 60ms">
+            <div class="card card-hover p-6 animate-rise" style="animation-delay: 60ms">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-muted">Articles suivis</p>
                     <span class="icon-btn !w-8 !h-8 !shadow-none">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10m0-10L4 7"/></svg>
                     </span>
                 </div>
-                <p class="text-5xl font-bold tracking-tight mt-3">{{ stats.articles_suivis }}</p>
+                <p class="text-5xl font-bold tracking-tight mt-3 tabular-nums">{{ display.articles_suivis }}</p>
                 <p class="text-xs text-muted mt-1">références avec niveau de stock</p>
             </div>
 
             <!-- Carte accent (alertes) -->
-            <div class="rounded-card p-6 animate-rise" :class="stats.en_alerte > 0 ? 'bg-lime' : 'card'" style="animation-delay: 120ms">
-                <div class="flex items-center justify-between">
+            <div class="rounded-card p-6 animate-rise transition-all duration-500 ease-ios hover:-translate-y-1"
+                 :class="stats.en_alerte > 0 ? 'bg-lime shimmer shadow-glass-lg' : 'card card-hover'"
+                 style="animation-delay: 120ms">
+                <div class="relative flex items-center justify-between">
                     <p class="text-sm" :class="stats.en_alerte > 0 ? 'text-ink/70' : 'text-muted'">En alerte stock bas</p>
-                    <span class="w-8 h-8 rounded-full grid place-items-center" :class="stats.en_alerte > 0 ? 'bg-ink text-lime' : 'bg-black/5 text-ink'">
+                    <span class="w-8 h-8 rounded-full grid place-items-center" :class="stats.en_alerte > 0 ? 'bg-ink text-lime animate-float' : 'bg-black/5 text-ink'">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                     </span>
                 </div>
-                <p class="text-5xl font-bold tracking-tight mt-3 text-ink">{{ stats.en_alerte }}</p>
-                <p class="text-xs mt-1" :class="stats.en_alerte > 0 ? 'text-ink/60' : 'text-muted'">article(s) sous le seuil</p>
+                <p class="relative text-5xl font-bold tracking-tight mt-3 text-ink tabular-nums">{{ display.en_alerte }}</p>
+                <p class="relative text-xs mt-1" :class="stats.en_alerte > 0 ? 'text-ink/60' : 'text-muted'">article(s) sous le seuil</p>
             </div>
 
-            <div class="card p-6 animate-rise" style="animation-delay: 180ms">
+            <div class="card card-hover p-6 animate-rise" style="animation-delay: 180ms">
                 <div class="flex items-center justify-between">
                     <p class="text-sm text-muted">Mouvements du jour</p>
                     <span class="icon-btn !w-8 !h-8 !shadow-none">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8M21 7v6M21 7h-6"/></svg>
                     </span>
                 </div>
-                <p class="text-5xl font-bold tracking-tight mt-3">{{ stats.mouvements_du_jour }}</p>
+                <p class="text-5xl font-bold tracking-tight mt-3 tabular-nums">{{ display.mouvements_du_jour }}</p>
                 <p class="text-xs text-muted mt-1">entrées et sorties enregistrées</p>
             </div>
         </div>

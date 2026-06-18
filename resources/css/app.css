@@ -8,35 +8,85 @@
     }
     body {
         background-color: #E7E7E4;
+        min-height: 100vh;
+    }
+
+    /* Fond « aurora » : halos lime animés derrière le verre dépoli (iOS 26). */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: -20%;
+        z-index: -2;
+        background:
+            radial-gradient(38% 38% at 18% 22%, rgba(199, 243, 60, 0.55), transparent 70%),
+            radial-gradient(34% 34% at 82% 18%, rgba(225, 242, 174, 0.6), transparent 70%),
+            radial-gradient(42% 42% at 75% 82%, rgba(199, 243, 60, 0.38), transparent 70%),
+            radial-gradient(40% 40% at 25% 88%, rgba(168, 214, 46, 0.32), transparent 70%);
+        filter: saturate(1.1);
+        animation: aurora-1 20s ease-in-out infinite;
+    }
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        /* Voile clair + grain léger pour adoucir l'aurora. */
+        background: rgba(231, 231, 228, 0.55);
+        backdrop-filter: blur(40px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        body::before { animation: none; }
+        *, *::before, *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+        }
     }
 }
 
 @layer components {
+    /* ---- Verre liquide ---- */
+    .glass {
+        @apply bg-white/55 backdrop-blur-glass backdrop-saturate-150 ring-1 ring-white/50 shadow-glass;
+        position: relative;
+    }
+    .glass-strong {
+        @apply bg-white/70 backdrop-blur-glass backdrop-saturate-150 ring-1 ring-white/60 shadow-glass-lg;
+    }
+    /* Reflet spéculaire supérieur (liquid glass). */
+    .glass::after,
+    .glass-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, transparent 28%);
+        pointer-events: none;
+        opacity: 0.8;
+    }
+
     /* ---- Boutons ---- */
     .btn {
-        @apply inline-flex items-center justify-center gap-1.5 rounded-pill px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 disabled:opacity-40 disabled:cursor-not-allowed;
+        @apply inline-flex items-center justify-center gap-1.5 rounded-pill px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-spring focus:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95;
     }
-    /* Primaire = noir d'encre (pilule) */
     .btn-primary {
-        @apply btn bg-ink text-white hover:bg-ink/90 active:scale-[0.98] shadow-pill;
+        @apply btn bg-ink/95 text-white hover:bg-ink hover:-translate-y-0.5 shadow-pill backdrop-blur-sm;
     }
-    /* Accent = lime vif, texte noir */
     .btn-accent {
-        @apply btn bg-lime text-ink hover:bg-lime-600 active:scale-[0.98] shadow-pill;
+        @apply btn bg-lime text-ink hover:bg-lime-600 hover:-translate-y-0.5 shadow-pill;
     }
-    /* Secondaire = surface blanche, fin liseré */
     .btn-secondary {
-        @apply btn bg-surface text-ink ring-1 ring-inset ring-black/5 hover:bg-black/[0.03] shadow-pill;
+        @apply btn bg-white/60 backdrop-blur-glass text-ink ring-1 ring-inset ring-white/60 hover:bg-white/80 hover:-translate-y-0.5 shadow-pill;
     }
     .btn-danger {
-        @apply btn bg-surface text-red-600 ring-1 ring-inset ring-red-200 hover:bg-red-50;
+        @apply btn bg-white/60 backdrop-blur-glass text-red-600 ring-1 ring-inset ring-red-200/80 hover:bg-red-50/80;
     }
-    /* Bouton icône circulaire */
     .icon-btn {
-        @apply inline-flex items-center justify-center w-9 h-9 rounded-full bg-surface text-ink ring-1 ring-black/5 hover:bg-black/[0.03] transition shadow-pill;
+        @apply inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/60 backdrop-blur-glass text-ink ring-1 ring-white/60 hover:bg-white/85 hover:scale-105 active:scale-95 transition-all duration-300 ease-spring shadow-pill;
     }
     .icon-btn-dark {
-        @apply inline-flex items-center justify-center w-9 h-9 rounded-full bg-ink text-white hover:bg-ink/90 transition;
+        @apply inline-flex items-center justify-center w-9 h-9 rounded-full bg-ink text-white hover:bg-ink/90 hover:scale-105 active:scale-95 transition-all duration-300 ease-spring;
     }
 
     /* ---- Champs ---- */
@@ -44,37 +94,30 @@
         @apply block text-xs font-medium text-muted mb-1.5;
     }
     .input {
-        @apply block w-full rounded-2xl border-0 py-2.5 px-4 text-ink bg-black/[0.03] ring-1 ring-inset ring-black/5 placeholder:text-muted/70 focus:bg-surface focus:ring-2 focus:ring-inset focus:ring-ink/80 text-sm transition;
+        @apply block w-full rounded-2xl border-0 py-2.5 px-4 text-ink bg-white/45 ring-1 ring-inset ring-white/50 placeholder:text-muted/70 focus:bg-white/85 focus:ring-2 focus:ring-inset focus:ring-ink/80 text-sm transition-all duration-300 ease-ios backdrop-blur-sm;
     }
 
     /* ---- Cartes ---- */
     .card {
-        @apply bg-surface rounded-card shadow-soft;
+        @apply glass rounded-card transition-all duration-500 ease-ios;
+    }
+    .card-hover {
+        @apply hover:-translate-y-1 hover:shadow-glass-lg;
     }
     .card-soft {
-        @apply bg-black/[0.025] rounded-card ring-1 ring-black/5;
+        @apply bg-white/35 backdrop-blur-glass rounded-card ring-1 ring-white/45;
     }
 
     /* ---- Badges ---- */
     .badge {
-        @apply inline-flex items-center rounded-pill px-2.5 py-1 text-xs font-medium;
+        @apply inline-flex items-center rounded-pill px-2.5 py-1 text-xs font-medium transition-all duration-300;
     }
-    .badge-lime {
-        @apply badge bg-lime text-ink;
-    }
-    .badge-pale {
-        @apply badge bg-lime-pale text-ink/80;
-    }
-    .badge-ink {
-        @apply badge bg-ink text-white;
-    }
-    .badge-soft {
-        @apply badge bg-black/5 text-ink/70;
-    }
+    .badge-lime { @apply badge bg-lime text-ink; }
+    .badge-pale { @apply badge bg-lime-pale/80 text-ink/80 backdrop-blur-sm; }
+    .badge-ink { @apply badge bg-ink text-white; }
+    .badge-soft { @apply badge bg-white/50 text-ink/70 ring-1 ring-white/50 backdrop-blur-sm; }
 
-    .field-error {
-        @apply mt-1.5 text-xs text-red-600;
-    }
+    .field-error { @apply mt-1.5 text-xs text-red-600; }
 
     /* ---- Tables ---- */
     .th {
@@ -86,7 +129,7 @@
 
     /* Onglet de navigation en pilule */
     .nav-pill {
-        @apply inline-flex items-center gap-2 px-4 py-2 rounded-pill text-sm font-medium text-ink/70 transition-all;
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-pill text-sm font-medium text-ink/70 transition-all duration-300 ease-spring;
     }
     .nav-pill-active {
         @apply bg-ink text-white shadow-pill;
@@ -94,15 +137,30 @@
 }
 
 @layer utilities {
-    /* Révélation à la montée de page (staggerable via style="animation-delay") */
-    @keyframes rise {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
+    /* Reveal en cascade (staggerable via style="animation-delay"). */
+    .animate-rise { animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Bande de brillance qui balaye un élément (accent). */
+    .shimmer { position: relative; overflow: hidden; }
+    .shimmer::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+        animation: shimmer 3s ease-in-out infinite;
     }
-    .animate-rise {
-        animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    @media (prefers-reduced-motion: reduce) {
-        .animate-rise { animation: none; }
-    }
+
+    /* ---- Transition de route (Vue <transition name="view">) ---- */
+    .view-enter-active { transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+    .view-leave-active { transition: all 0.25s cubic-bezier(0.4, 0, 1, 1); }
+    .view-enter-from { opacity: 0; transform: translateY(16px) scale(0.99); }
+    .view-leave-to { opacity: 0; transform: translateY(-8px) scale(0.995); }
+
+    /* Transition modale. */
+    .modal-enter-active { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .modal-leave-active { transition: all 0.2s ease; }
+    .modal-enter-from, .modal-leave-to { opacity: 0; transform: scale(0.94) translateY(10px); }
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+    .fade-enter-from, .fade-leave-to { opacity: 0; }
 }

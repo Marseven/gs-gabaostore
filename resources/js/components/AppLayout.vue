@@ -37,21 +37,21 @@ async function logout() {
             <div class="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
                 <!-- Logo -->
                 <div class="flex items-center gap-2 shrink-0">
-                    <div class="w-11 h-11 rounded-2xl bg-ink text-white grid place-items-center">
+                    <div class="w-11 h-11 rounded-2xl bg-ink text-white grid place-items-center animate-float shadow-glass">
                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
                             <path d="M5 9h14M5 15h14M9 5l-1.5 14M16.5 5L15 19" />
                         </svg>
                     </div>
                 </div>
 
-                <!-- Navigation pilule -->
+                <!-- Navigation pilule (verre liquide) -->
                 <nav class="flex-1 flex justify-center">
-                    <div class="bg-surface rounded-pill p-1.5 shadow-soft flex items-center gap-1 overflow-x-auto max-w-full">
+                    <div class="glass rounded-pill p-1.5 flex items-center gap-1 overflow-x-auto max-w-full">
                         <router-link
                             v-for="item in nav"
                             :key="item.name"
                             :to="item.to"
-                            class="nav-pill whitespace-nowrap hover:bg-black/[0.04]"
+                            class="nav-pill whitespace-nowrap hover:bg-white/40"
                             active-class="nav-pill-active hover:!bg-ink"
                         >
                             {{ item.label }}
@@ -61,12 +61,12 @@ async function logout() {
 
                 <!-- Profil + déconnexion -->
                 <div class="flex items-center gap-2 shrink-0">
-                    <div class="hidden sm:flex items-center gap-2 bg-surface rounded-pill pl-3 pr-1.5 py-1.5 shadow-soft">
+                    <div class="hidden sm:flex items-center gap-2 glass rounded-pill pl-3 pr-1.5 py-1.5">
                         <div class="text-right leading-tight">
                             <p class="text-xs font-semibold text-ink">{{ auth.user?.name }}</p>
                             <p class="text-[10px] text-muted capitalize">{{ auth.user?.role }}</p>
                         </div>
-                        <div class="w-8 h-8 rounded-full bg-lime text-ink grid place-items-center text-xs font-bold">
+                        <div class="w-8 h-8 rounded-full bg-lime text-ink grid place-items-center text-xs font-bold shadow-pill">
                             {{ initials }}
                         </div>
                     </div>
