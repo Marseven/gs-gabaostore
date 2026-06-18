@@ -69,12 +69,15 @@ DB_DATABASE=uXXXX_gabaostore
 DB_USERNAME=uXXXX_gabao
 DB_PASSWORD=********
 
-SESSION_DRIVER=database
-CACHE_STORE=database
-QUEUE_CONNECTION=database
+# Drivers fichier recommandés en mutualisé (pas de table sessions/cache requise)
+SESSION_DRIVER=file
+CACHE_STORE=file
+QUEUE_CONNECTION=sync
 
 SANCTUM_STATEFUL_DOMAINS=votre-domaine.tld
 ```
+
+> ⚠️ Avec `SESSION_DRIVER=database`/`CACHE_STORE=database`, les tables `sessions`/`cache` doivent exister (créées par `php artisan migrate`). Les drivers `file` évitent cette dépendance.
 
 Générez la clé applicative (en SSH) :
 ```bash
@@ -123,3 +126,17 @@ php artisan config:cache && php artisan route:cache && php artisan view:cache
 - `https://votre-domaine.tld/` → écran de connexion.
 - Connexion admin → tableau de bord.
 - Créer une entrée puis une sortie → le stock se met à jour.
+
+## Dépannage
+
+**`SQLSTATE[42S02] ... Table '..._gabao.sessions' doesn't exist`**
+La base est vide : les migrations n'ont pas été exécutées. Lancez :
+```bash
+php artisan migrate --force --seed
+php artisan config:clear && php artisan config:cache
+```
+Si vous n'avez pas le SSH, passez `SESSION_DRIVER=file` et `CACHE_STORE=file` dans le `.env` (supprime la dépendance à la table `sessions`/`cache`), puis importez le schéma via phpMyAdmin. Les tables métier (`users`, `articles`…) restent obligatoires : l'app ne fonctionne pas sans migrations.
+
+**Page blanche / 500** : vérifiez `storage/` et `bootstrap/cache/` accessibles en écriture (`chmod -R 775`), et `APP_KEY` renseignée.
+
+**Après modification du `.env`** : toujours `php artisan config:clear` (un `config:cache` obsolète garde les anciennes valeurs).
