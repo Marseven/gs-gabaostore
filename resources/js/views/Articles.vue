@@ -156,7 +156,7 @@ onMounted(() => {
         </div>
 
         <div class="card overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[760px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Référence</th>
@@ -203,7 +203,7 @@ onMounted(() => {
         <!-- Modal article -->
         <Modal v-if="showModal" :title="editingId ? 'Éditer l’article' : 'Nouvel article'" @close="showModal = false">
             <form @submit.prevent="save" class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="label">Référence (SKU)</label>
                         <input v-model="form.reference" type="text" class="input" required />
@@ -230,7 +230,7 @@ onMounted(() => {
                     <input v-model="form.suivi_stock" type="checkbox" class="rounded" />
                     Suivi de stock (calcul du niveau et alertes)
                 </label>
-                <div v-if="form.suivi_stock" class="grid grid-cols-2 gap-3">
+                <div v-if="form.suivi_stock" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="label">Stock initial</label>
                         <input v-model.number="form.stock_initial" type="number" min="0" class="input" />

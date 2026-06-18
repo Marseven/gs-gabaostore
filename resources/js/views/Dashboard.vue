@@ -123,7 +123,8 @@ onMounted(load);
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
                     </router-link>
                 </div>
-                <table class="w-full">
+                <div class="overflow-x-auto">
+                <table class="w-full min-w-[360px]">
                     <thead><tr class="border-y border-black/5"><th class="th">Référence</th><th class="th">Désignation</th><th class="th">Stock</th><th class="th">Seuil</th></tr></thead>
                     <tbody>
                         <tr v-for="a in alertes" :key="a.id" class="border-b border-black/5 last:border-0 hover:bg-black/[0.02]">
@@ -140,6 +141,7 @@ onMounted(load);
                         </td></tr>
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="card overflow-hidden animate-rise" style="animation-delay: 300ms">
@@ -149,7 +151,8 @@ onMounted(load);
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg>
                     </router-link>
                 </div>
-                <table class="w-full">
+                <div class="overflow-x-auto">
+                <table class="w-full min-w-[360px]">
                     <thead><tr class="border-y border-black/5"><th class="th">Date</th><th class="th">Type</th><th class="th">Article</th><th class="th">Qté</th></tr></thead>
                     <tbody>
                         <tr v-for="m in derniers" :key="m.id" class="border-b border-black/5 last:border-0 hover:bg-black/[0.02]">
@@ -165,6 +168,7 @@ onMounted(load);
                         <tr v-if="!derniers.length"><td class="td text-muted py-8 text-center" colspan="4">Aucun mouvement.</td></tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>

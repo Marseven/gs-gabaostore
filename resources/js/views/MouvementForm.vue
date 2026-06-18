@@ -118,7 +118,7 @@ async function submit() {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="label">Quantité</label>
                         <input v-model.number="form.quantite" type="number" min="1" class="input" required />

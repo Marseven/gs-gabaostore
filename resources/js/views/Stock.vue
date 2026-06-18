@@ -72,8 +72,8 @@ onMounted(() => {
             <button class="btn-primary" @click="load">Filtrer</button>
         </div>
 
-        <div class="card overflow-hidden">
-            <table class="w-full">
+        <div class="card overflow-x-auto">
+            <table class="w-full min-w-[560px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Référence</th>

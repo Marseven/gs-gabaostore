@@ -142,7 +142,7 @@ onMounted(() => load(1));
         </div>
 
         <div class="card overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[760px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Date</th>
@@ -186,7 +186,7 @@ onMounted(() => load(1));
 
         <Modal v-if="editing" :title="`Éditer le mouvement #${editing.id}`" @close="editing = null">
             <form @submit.prevent="saveEdit" class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="label">Quantité</label>
                         <input v-model.number="editForm.quantite" type="number" min="1" class="input" />

@@ -83,7 +83,7 @@ onMounted(() => users.fetch());
         </div>
 
         <div class="card overflow-x-auto">
-            <table class="w-full">
+            <table class="w-full min-w-[560px]">
                 <thead>
                     <tr class="border-b border-black/5">
                         <th class="th">Nom</th>
@@ -132,7 +132,7 @@ onMounted(() => users.fetch());
                     <input v-model="form.email" type="email" class="input" required />
                     <p v-if="errors.email" class="field-error">{{ errors.email[0] }}</p>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="label">Mot de passe {{ editingId ? '(laisser vide = inchangé)' : '' }}</label>
                         <input v-model="form.password" type="password" class="input" :required="!editingId" />
