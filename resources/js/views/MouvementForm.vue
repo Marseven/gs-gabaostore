@@ -87,19 +87,21 @@ async function submit() {
             <div class="flex rounded-pill p-1.5 mb-6 bg-black/[0.04]">
                 <button
                     type="button"
-                    class="flex-1 py-2.5 rounded-pill text-sm font-medium transition-all"
+                    class="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-pill text-sm font-medium transition-all"
                     :class="type === 'entree' ? 'bg-lime text-ink shadow-pill' : 'text-muted hover:text-ink'"
                     @click="type = 'entree'; errors = {}"
                 >
-                    ↓ Entrée (réappro)
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                    Entrée (réappro)
                 </button>
                 <button
                     type="button"
-                    class="flex-1 py-2.5 rounded-pill text-sm font-medium transition-all"
+                    class="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-pill text-sm font-medium transition-all"
                     :class="type === 'sortie' ? 'bg-ink text-white shadow-pill' : 'text-muted hover:text-ink'"
                     @click="type = 'sortie'; errors = {}"
                 >
-                    ↑ Sortie (livraison)
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                    Sortie (livraison)
                 </button>
             </div>
 
@@ -157,7 +159,10 @@ async function submit() {
                 </div>
 
                 <p v-if="errors._global" class="text-sm text-red-600">{{ errors._global[0] }}</p>
-                <p v-if="success" class="text-sm text-ink bg-lime-pale rounded-2xl px-4 py-2.5 font-medium">✓ {{ success }}</p>
+                <p v-if="success" class="text-sm text-ink bg-lime-pale rounded-2xl px-4 py-2.5 font-medium inline-flex items-center gap-2">
+                    <svg class="w-4 h-4 text-lime-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    {{ success }}
+                </p>
 
                 <div class="flex justify-end gap-2">
                     <button type="button" class="btn-secondary" @click="resetForm">Réinitialiser</button>

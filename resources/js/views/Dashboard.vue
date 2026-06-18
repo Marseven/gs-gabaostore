@@ -110,7 +110,12 @@ onMounted(load);
                             <td class="td"><span class="badge bg-red-100 text-red-700">{{ a.stock_actuel }} {{ a.unite }}</span></td>
                             <td class="td text-muted">{{ a.seuil_alerte }}</td>
                         </tr>
-                        <tr v-if="!alertes.length"><td class="td text-muted py-8 text-center" colspan="4">Aucune alerte — tout est au vert 🎉</td></tr>
+                        <tr v-if="!alertes.length"><td class="td text-muted py-8 text-center" colspan="4">
+                            <span class="inline-flex items-center gap-2">
+                                <svg class="w-4 h-4 text-lime-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+                                Aucune alerte — tout est au vert
+                            </span>
+                        </td></tr>
                     </tbody>
                 </table>
             </div>
