@@ -15,12 +15,16 @@ Guide pas-à-pas pour déployer **Gestion de Stock** (Laravel 11 + SPA Vue 3) su
 
 ## 1. Build local des assets (sur votre machine)
 Hostinger mutualisé n'exécute pas Node : on build **avant** d'envoyer.
+Le dossier `public/build/` est **versionné dans Git** — un simple `git pull` (ou un export du dépôt) apporte donc les assets déjà compilés, sans Node sur le serveur.
 
 ```bash
 npm ci
-npm run build          # génère public/build/
+npm run build          # génère public/build/ (à committer)
 composer install --no-dev --optimize-autoloader
+git add public/build && git commit -m "chore: build assets" && git push
 ```
+
+> Règle : rebuild + commit de `public/build/` à chaque modification du frontend, avant déploiement.
 
 ## 2. Envoi des fichiers
 Uploadez **tout le projet** (y compris `vendor/` et `public/build/`) via Gestionnaire de fichiers ou SFTP, par ex. dans :
