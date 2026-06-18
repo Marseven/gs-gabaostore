@@ -1,0 +1,210 @@
+openapi: 3.0.3
+info:
+  title: API Gestion de Stock — MRTECH
+  version: "1.0.0"
+  description: >
+    API REST de l'application interne de gestion de stock (entrées / sorties).
+    Authentification par token Bearer (Laravel Sanctum). Toutes les routes,
+    hormis /login, requièrent un token valide. Réf. projet MRTECH-DEV-STOCK-2026-01.
+servers:
+  - url: /api/v1
+    description: Version 1
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Article:
+      type: object
+      properties:
+        id: { type: integer }
+        reference: { type: string }
+        designation: { type: string }
+        categorie_id: { type: integer, nullable: true }
+        unite: { type: string }
+        suivi_stock: { type: boolean }
+        seuil_alerte: { type: integer, nullable: true }
+        stock_initial: { type: integer }
+        stock_actuel: { type: integer }
+        en_alerte: { type: boolean }
+        actif: { type: boolean }
+    Mouvement:
+      type: object
+      properties:
+        id: { type: integer }
+        article_id: { type: integer }
+        type: { type: string, enum: [entree, sortie] }
+        quantite: { type: integer, minimum: 1 }
+        date_mouvement: { type: string, format: date }
+        livreur: { type: string, nullable: true }
+        destination: { type: string, nullable: true }
+        source: { type: string, nullable: true }
+        note: { type: string, nullable: true }
+    ValidationError:
+      type: object
+      properties:
+        message: { type: string }
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+
+security:
+  - bearerAuth: []
+
+paths:
+  /login:
+    post:
+      summary: Authentification
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200":
+          description: Token et utilisateur
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/Article' }
+        "422": { description: Identifiants invalides ou compte désactivé }
+        "429": { description: Trop de tentatives (rate limit) }
+
+  /logout:
+    post:
+      summary: Déconnexion (révoque le token courant)
+      responses:
+        "200": { description: Déconnecté }
+
+  /me:
+    get:
+      summary: Utilisateur courant
+      responses:
+        "200": { description: Profil }
+
+  /articles:
+    get:
+      summary: Liste paginée des articles
+      parameters:
+        - { name: search, in: query, schema: { type: string } }
+        - { name: categorie_id, in: query, schema: { type: integer } }
+        - { name: actif, in: query, schema: { type: boolean } }
+        - { name: page, in: query, schema: { type: integer } }
+      responses:
+        "200": { description: Collection paginée d'articles }
+    post:
+      summary: Crée un article (admin)
+      responses:
+        "201": { description: Article créé }
+        "403": { description: Réservé à l'admin }
+        "422":
+          description: Erreur de validation
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+
+  /articles/{id}:
+    get: { summary: Détail d'un article, responses: { "200": { description: Article } } }
+    put: { summary: Met à jour un article (admin), responses: { "200": { description: Article }, "403": { description: Interdit } } }
+    delete: { summary: Désactive un article (admin, soft), responses: { "200": { description: Désactivé } } }
+
+  /mouvements:
+    get:
+      summary: Historique paginé filtrable
+      parameters:
+        - { name: type, in: query, schema: { type: string, enum: [entree, sortie] } }
+        - { name: article_id, in: query, schema: { type: integer } }
+        - { name: livreur, in: query, schema: { type: string } }
+        - { name: date_from, in: query, schema: { type: string, format: date } }
+        - { name: date_to, in: query, schema: { type: string, format: date } }
+        - { name: search, in: query, schema: { type: string } }
+      responses:
+        "200": { description: Collection paginée de mouvements }
+
+  /mouvements/entree:
+    post:
+      summary: Enregistre une entrée (réapprovisionnement)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [article_id, quantite]
+              properties:
+                article_id: { type: integer }
+                quantite: { type: integer, minimum: 1 }
+                date_mouvement: { type: string, format: date }
+                source: { type: string }
+                note: { type: string }
+      responses:
+        "201": { description: Mouvement créé }
+        "422": { description: Validation }
+
+  /mouvements/sortie:
+    post:
+      summary: Enregistre une sortie (livraison) — livreur obligatoire
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [article_id, quantite, livreur]
+              properties:
+                article_id: { type: integer }
+                quantite: { type: integer, minimum: 1 }
+                livreur: { type: string }
+                destination: { type: string }
+                date_mouvement: { type: string, format: date }
+                note: { type: string }
+      responses:
+        "201": { description: Mouvement créé }
+        "422":
+          description: Validation ou stock insuffisant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+
+  /mouvements/{id}:
+    put: { summary: Édite un mouvement (admin, recalcule le stock), responses: { "200": { description: OK }, "403": { description: Interdit } } }
+    delete: { summary: Supprime un mouvement (admin, recalcule le stock), responses: { "200": { description: OK } } }
+
+  /stock:
+    get: { summary: Niveaux actuels des articles suivis, responses: { "200": { description: Liste } } }
+  /stock/alertes:
+    get: { summary: Articles en alerte stock bas, responses: { "200": { description: Liste } } }
+  /dashboard:
+    get: { summary: Agrégats du tableau de bord, responses: { "200": { description: Stats + alertes + derniers mouvements } } }
+
+  /export/mouvements:
+    get: { summary: Export Excel des mouvements (mêmes filtres que /mouvements), responses: { "200": { description: Fichier .xlsx } } }
+  /export/stock:
+    get: { summary: Export Excel de l'état du stock, responses: { "200": { description: Fichier .xlsx } } }
+
+  /categories:
+    get: { summary: Liste des catégories, responses: { "200": { description: Liste } } }
+    post: { summary: Crée une catégorie (admin), responses: { "201": { description: Créée } } }
+  /categories/{id}:
+    put: { summary: Met à jour (admin), responses: { "200": { description: OK } } }
+    delete: { summary: Supprime (admin, soft), responses: { "200": { description: OK } } }
+
+  /users:
+    get: { summary: Liste des utilisateurs (admin), responses: { "200": { description: Liste }, "403": { description: Interdit } } }
+    post: { summary: Crée un utilisateur (admin), responses: { "201": { description: Créé } } }
+  /users/{id}:
+    put: { summary: Met à jour (admin), responses: { "200": { description: OK } } }
+    delete: { summary: Désactive (admin), responses: { "200": { description: OK } } }
