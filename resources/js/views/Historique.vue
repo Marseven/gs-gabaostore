@@ -211,7 +211,8 @@ onMounted(() => load(1));
                         <td class="td text-muted">{{ m.vendeur || '—' }}</td>
                         <td class="td">
                             {{ remiseLabel(m) }}
-                            <span v-if="m.telephone" class="block text-[11px] text-muted">{{ m.telephone }}</span>
+                            <span v-if="m.type === 'sortie' && m.telephone" class="block text-[11px] text-muted">{{ m.telephone }}</span>
+                            <span v-if="m.type === 'entree' && m.recu_par" class="block text-[11px] text-muted">Reçu : {{ m.recu_par }}</span>
                         </td>
                         <td class="td text-muted">{{ m.destination || '—' }}</td>
                         <td class="td">
@@ -303,10 +304,32 @@ onMounted(() => load(1));
                         <p v-if="editErrors.commentaire_statut" class="field-error">{{ editErrors.commentaire_statut[0] }}</p>
                     </div>
                 </template>
-                <div v-if="editing.type === 'entree'">
-                    <label class="label">Source</label>
-                    <input v-model="editForm.source" type="text" class="input" />
-                </div>
+                <template v-if="editing.type === 'entree'">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="label">Numéro</label>
+                            <input v-model="editForm.numero" type="text" class="input" />
+                        </div>
+                        <div>
+                            <label class="label">Prix</label>
+                            <input v-model="editForm.prix" type="number" step="0.01" min="0" class="input" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="label">Vendeur</label>
+                            <input v-model="editForm.vendeur" type="text" class="input" />
+                        </div>
+                        <div>
+                            <label class="label">Reçu par</label>
+                            <input v-model="editForm.recu_par" type="text" class="input" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label">Source / fournisseur</label>
+                        <input v-model="editForm.source" type="text" class="input" />
+                    </div>
+                </template>
                 <div>
                     <label class="label">Note</label>
                     <textarea v-model="editForm.note" rows="2" class="input"></textarea>

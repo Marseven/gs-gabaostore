@@ -17,8 +17,12 @@ class StoreEntreeRequest extends FormRequest
         return [
             'article_id' => ['required', 'integer', Rule::exists('articles', 'id')->where('actif', true)],
             'quantite' => ['required', 'integer', 'min:1'],
+            'prix' => ['nullable', 'numeric', 'min:0'],
+            'numero' => ['nullable', 'string', 'max:100'],
             'date_mouvement' => ['nullable', 'date'],
             'source' => ['nullable', 'string', 'max:255'],
+            'vendeur' => ['nullable', 'string', 'max:255'],
+            'recu_par' => ['nullable', 'string', 'max:255'],
             'note' => ['nullable', 'string'],
         ];
     }

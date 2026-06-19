@@ -80,6 +80,10 @@ async function submit() {
         };
         if (type.value === 'entree') {
             payload.source = form.source || null;
+            payload.prix = form.prix !== '' ? Number(form.prix) : null;
+            payload.numero = form.numero || null;
+            payload.vendeur = form.vendeur || null;
+            payload.recu_par = form.recu_par || null;
             await mouvements.createEntree(payload);
         } else {
             payload.prix = form.prix !== '' ? Number(form.prix) : null;
@@ -171,10 +175,34 @@ async function submit() {
                 </div>
 
                 <!-- Champs spécifiques ENTRÉE -->
-                <div v-if="type === 'entree'">
-                    <label class="label">Source / fournisseur</label>
-                    <input v-model="form.source" type="text" class="input" placeholder="Ex : Fournisseur, origine…" />
-                </div>
+                <template v-if="type === 'entree'">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Numéro</label>
+                            <input v-model="form.numero" type="text" class="input" placeholder="N° commande / bon" />
+                            <p v-if="errors.numero" class="field-error">{{ errors.numero[0] }}</p>
+                        </div>
+                        <div>
+                            <label class="label">Prix</label>
+                            <input v-model="form.prix" type="number" step="0.01" min="0" class="input" placeholder="Montant" />
+                            <p v-if="errors.prix" class="field-error">{{ errors.prix[0] }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label">Vendeur</label>
+                            <input v-model="form.vendeur" type="text" class="input" placeholder="Nom du vendeur" />
+                        </div>
+                        <div>
+                            <label class="label">Reçu par</label>
+                            <input v-model="form.recu_par" type="text" class="input" placeholder="Ex : reçu par Abou" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label">Source / fournisseur</label>
+                        <input v-model="form.source" type="text" class="input" placeholder="Ex : Fournisseur, origine…" />
+                    </div>
+                </template>
 
                 <!-- Champs spécifiques SORTIE -->
                 <template v-else>
